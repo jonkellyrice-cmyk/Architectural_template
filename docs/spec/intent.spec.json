@@ -1,0 +1,98 @@
+{
+  "projectId": "time-calculator",
+  "projectName": "Time Calculator",
+  "organization": "Arc Frame Labs",
+
+  "projectType": "web-utility",
+
+  "status": "mvp",
+
+  "platform": {
+    "framework": "nextjs",
+    "language": "typescript",
+    "architecture": "single-feature-file"
+  },
+
+  "monetization": {
+    "freeTier": true,
+    "premiumTier": true,
+    "adsEnabled": true
+  },
+
+  "features": [
+    {
+      "id": "time-addition",
+      "required": true,
+      "inputs": [
+        "time",
+        "duration"
+      ],
+      "outputs": [
+        "time"
+      ]
+    },
+    {
+      "id": "time-subtraction",
+      "required": true,
+      "inputs": [
+        "time",
+        "duration"
+      ],
+      "outputs": [
+        "time"
+      ]
+    },
+    {
+      "id": "time-difference",
+      "required": true,
+      "inputs": [
+        "start-time",
+        "end-time"
+      ],
+      "outputs": [
+        "duration"
+      ]
+    },
+    {
+      "id": "date-addition",
+      "required": true,
+      "inputs": [
+        "date",
+        "days"
+      ],
+      "outputs": [
+        "date"
+      ]
+    },
+    {
+      "id": "date-difference",
+      "required": true,
+      "inputs": [
+        "start-date",
+        "end-date"
+      ],
+      "outputs": [
+        "days"
+      ]
+    }
+  ],
+
+  "nonGoals": [
+    "accounts",
+    "authentication",
+    "ai",
+    "calendar",
+    "notifications",
+    "scheduling",
+    "project-management",
+    "time-tracking",
+    "timezone-conversion"
+  ],
+
+  "successCriteria": [
+    "user-can-complete-a-calculation",
+    "result-is-correct",
+    "result-is-understandable",
+    "mobile-friendly"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "entities": [
+    {
+      "id": "calculation-mode",
+      "values": [
+        "time-addition",
+        "time-subtraction",
+        "time-difference",
+        "date-addition",
+        "date-difference"
+      ]
+    }
+  ],
+
+  "state": [
+    "selected-mode",
+    "input-a",
+    "input-b",
+    "result",
+    "error"
+  ],
+
+  "actions": [
+    "select-mode",
+    "update-input-a",
+    "update-input-b",
+    "calculate",
+    "reset"
+  ]
+}

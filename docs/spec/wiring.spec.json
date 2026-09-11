@@ -1,0 +1,149 @@
+{
+  "projectId": "time-calculator",
+  "artifactType": "wiring-spec",
+  "version": "0.1.0",
+
+  "entrypoints": [
+    {
+      "id": "root-page",
+      "path": "src/app/page.tsx",
+      "exports": [
+        "default"
+      ]
+    }
+  ],
+
+  "imports": [
+    {
+      "source": "src/app/page.tsx",
+      "target": "src/app_feature/feature.tsx",
+
+      "importType": "named",
+
+      "symbols": [
+        "AppFeature"
+      ],
+
+      "moduleSpecifier": "@/app_feature/feature"
+    }
+  ],
+
+  "renderTree": [
+    {
+      "parent": "src/app/page.tsx",
+      "child": "AppFeature",
+      "kind": "react-render"
+    }
+  ],
+
+  "runtimeRequests": [
+    {
+      "source": "src/app_feature/feature.tsx",
+
+      "target": "src/app/api/premium/route.ts",
+
+      "requestType": "http",
+
+      "method": "GET",
+
+      "path": "/api/premium"
+    }
+  ],
+
+  "exports": [
+    {
+      "file": "src/app_feature/feature.tsx",
+
+      "symbols": [
+        {
+          "name": "AppFeature",
+          "type": "named-export"
+        }
+      ]
+    },
+
+    {
+      "file": "src/app/page.tsx",
+
+      "symbols": [
+        {
+          "name": "default",
+          "type": "default-export"
+        }
+      ]
+    }
+  ],
+
+  "uiBindings": [
+    {
+      "component": "AppFeature",
+
+      "owns": [
+        "calculator-mode-selector",
+        "input-controls",
+        "result-display",
+        "error-display"
+      ]
+    }
+  ],
+
+  "apiBindings": [
+    {
+      "route": "/api/premium",
+
+      "handlerFile": "src/app/api/premium/route.ts",
+
+      "methods": [
+        "GET"
+      ]
+    }
+  ],
+
+  "stateBindings": [
+    {
+      "owner": "AppFeature",
+
+      "state": [
+        "selectedMode",
+        "inputA",
+        "inputB",
+        "result",
+        "error"
+      ]
+    }
+  ],
+
+  "validationRules": [
+    {
+      "id": "appfeature-export-exists",
+      "type": "export-check",
+
+      "file": "src/app_feature/feature.tsx",
+
+      "symbol": "AppFeature"
+    },
+
+    {
+      "id": "page-imports-appfeature",
+      "type": "import-check",
+
+      "file": "src/app/page.tsx",
+
+      "symbol": "AppFeature"
+    },
+
+    {
+      "id": "premium-route-exists",
+      "type": "file-check",
+
+      "path": "src/app/api/premium/route.ts"
+    },
+
+    {
+      "id": "runtime-path-valid",
+      "type": "route-check",
+
+      "path": "/api/premium"
+    }
+  ]
+}

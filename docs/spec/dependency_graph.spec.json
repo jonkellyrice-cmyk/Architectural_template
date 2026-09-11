@@ -1,0 +1,143 @@
+{
+  "projectId": "time-calculator",
+  "graphType": "dependency-graph",
+  "version": "0.1.0",
+
+  "nodes": [
+    {
+      "id": "app-layout",
+      "path": "src/app/layout.tsx",
+      "kind": "next-layout",
+      "owns": ["app-shell", "metadata", "global-wrapper"]
+    },
+    {
+      "id": "app-page",
+      "path": "src/app/page.tsx",
+      "kind": "next-page",
+      "owns": ["root-page-entrypoint"]
+    },
+    {
+      "id": "app-feature",
+      "path": "src/app_feature/feature.tsx",
+      "kind": "client-feature",
+      "owns": [
+        "calculator-ui",
+        "calculator-state",
+        "calculator-logic",
+        "result-rendering"
+      ]
+    },
+    {
+      "id": "premium-route",
+      "path": "src/app/api/premium/route.ts",
+      "kind": "api-route",
+      "owns": ["premium-endpoint"]
+    }
+  ],
+
+  "edges": [
+    {
+      "from": "app-layout",
+      "to": "app-page",
+      "type": "framework-wraps",
+      "allowed": true
+    },
+    {
+      "from": "app-page",
+      "to": "app-feature",
+      "type": "import",
+      "allowed": true,
+      "importSpec": {
+        "symbols": ["AppFeature"],
+        "source": "@/app_feature/feature"
+      }
+    },
+    {
+      "from": "app-feature",
+      "to": "premium-route",
+      "type": "runtime-http",
+      "allowed": true,
+      "requestSpec": {
+        "method": "GET",
+        "path": "/api/premium"
+      }
+    }
+  ],
+
+  "forbiddenEdges": [
+    {
+      "from": "app-feature",
+      "to": "premium-route",
+      "type": "import"
+    },
+    {
+      "from": "premium-route",
+      "to": "app-feature",
+      "type": "import"
+    },
+    {
+      "from": "premium-route",
+      "to": "app-page",
+      "type": "import"
+    },
+    {
+      "from": "premium-route",
+      "to": "app-layout",
+      "type": "import"
+    },
+    {
+      "from": "app-page",
+      "to": "premium-route",
+      "type": "import"
+    }
+  ],
+
+  "allowedImports": {
+    "src/app/layout.tsx": [],
+    "src/app/page.tsx": ["src/app_feature/feature.tsx"],
+    "src/app_feature/feature.tsx": ["react"],
+    "src/app/api/premium/route.ts": ["next/server"]
+  },
+
+  "runtimeLinks": [
+    {
+      "from": "src/app_feature/feature.tsx",
+      "to": "src/app/api/premium/route.ts",
+      "via": "fetch",
+      "path": "/api/premium",
+      "method": "GET"
+    }
+  ],
+
+  "validationRules": [
+    {
+      "id": "no-circular-imports",
+      "type": "graph",
+      "rule": "import-graph-must-be-acyclic"
+    },
+    {
+      "id": "page-imports-feature",
+      "type": "import",
+      "file": "src/app/page.tsx",
+      "mustImport": "@/app_feature/feature"
+    },
+    {
+      "id": "route-does-not-import-ui",
+      "type": "forbidden-import",
+      "file": "src/app/api/premium/route.ts",
+      "forbiddenPaths": [
+        "src/app_feature/feature.tsx",
+        "src/app/page.tsx",
+        "src/app/layout.tsx"
+      ]
+    },
+    {
+      "id": "feature-does-not-import-route",
+      "type": "forbidden-import",
+      "file": "src/app_feature/feature.tsx",
+      "forbiddenPaths": [
+        "src/app/api/premium/route.ts"
+      ]
+    }
+  ]
+}

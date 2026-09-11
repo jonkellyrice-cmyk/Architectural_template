@@ -1,0 +1,164 @@
+{
+  "projectId": "time-calculator",
+
+  "phases": [
+    {
+      "id": "repository-cleanup",
+      "required": true,
+
+      "tasks": [
+        "remove-old-architecture",
+        "remove-broken-barrels",
+        "verify-simple-structure"
+      ],
+
+      "acceptanceCriteria": [
+        "npm-build-succeeds"
+      ]
+    },
+
+    {
+      "id": "basic-ui",
+      "required": true,
+
+      "features": [
+        "time-addition",
+        "time-subtraction",
+        "time-difference",
+        "date-addition",
+        "date-difference"
+      ],
+
+      "requiredComponents": [
+        "title",
+        "description",
+        "mode-selector",
+        "inputs",
+        "calculate-button",
+        "result-display",
+        "error-display"
+      ],
+
+      "acceptanceCriteria": [
+        "all-modes-accessible",
+        "mobile-friendly"
+      ]
+    },
+
+    {
+      "id": "calculation-logic",
+      "required": true,
+
+      "capabilities": [
+        "parse-time",
+        "parse-date",
+        "add-time",
+        "subtract-time",
+        "time-difference",
+        "add-date",
+        "date-difference"
+      ],
+
+      "acceptanceCriteria": [
+        "all-calculations-correct"
+      ]
+    },
+
+    {
+      "id": "premium-placeholder",
+      "required": true,
+
+      "apiRoutes": [
+        "/api/premium"
+      ],
+
+      "acceptanceCriteria": [
+        "premium-route-returns-json"
+      ]
+    },
+
+    {
+      "id": "monetization-placeholder",
+      "required": true,
+
+      "components": [
+        "ad-placeholder",
+        "premium-placeholder"
+      ],
+
+      "acceptanceCriteria": [
+        "ui-remains-clean"
+      ]
+    },
+
+    {
+      "id": "arcframe-linkage",
+      "required": true,
+
+      "components": [
+        "arcframe-branding",
+        "hub-link",
+        "footer"
+      ],
+
+      "acceptanceCriteria": [
+        "user-can-return-to-hub"
+      ]
+    },
+
+    {
+      "id": "deployment-validation",
+      "required": true,
+
+      "tasks": [
+        "local-build",
+        "local-run",
+        "github-push",
+        "vercel-deploy",
+        "hub-update"
+      ],
+
+      "acceptanceCriteria": [
+        "site-publicly-accessible",
+        "site-linked-from-hub"
+      ]
+    }
+  ],
+
+  "deferredFeatures": [
+    "accounts",
+    "authentication",
+    "stripe",
+    "saved-history",
+    "timezone-conversion",
+    "business-day-calculations",
+    "holiday-calculations",
+    "calendar-integration",
+    "notifications",
+    "ai-features",
+    "advanced-architecture"
+  ],
+
+  "repositoryStructure": {
+    "requiredFiles": [
+      "src/app/layout.tsx",
+      "src/app/page.tsx",
+      "src/app_feature/feature.tsx",
+      "src/app/api/premium/route.ts"
+    ],
+
+    "optionalDirectories": [
+      "src/data",
+      "src/lib",
+      "src/storage"
+    ]
+  },
+
+  "completionCriteria": [
+    "user-can-perform-all-five-calculation-types",
+    "application-builds",
+    "application-deploys",
+    "application-linked-from-hub",
+    "application-understandable-in-single-session"
+  ]
+}
