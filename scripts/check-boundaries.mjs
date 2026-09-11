@@ -1,5 +1,5 @@
 import { readdir, readFile } from "node:fs/promises";
-import { extname, join, relative, resolve, sep } from "node:path";
+import { dirname, extname, join, relative, resolve, sep } from "node:path";
 
 const ROOT = resolve(process.cwd());
 const SOURCE_ROOTS = [resolve(ROOT, "src"), resolve(ROOT, "app")];
@@ -11,7 +11,15 @@ const layerRules = {
   infrastructure: new Set(["kernel", "domain", "application", "infrastructure"]),
   presentation: new Set(["kernel", "domain", "application", "presentation"]),
   config: new Set(["config"]),
-  composition: new Set(["kernel", "domain", "application", "infrastructure", "presentation", "config", "composition"]),
+  composition: new Set([
+    "kernel",
+    "domain",
+    "application",
+    "infrastructure",
+    "presentation",
+    "config",
+    "composition",
+  ]),
   app: new Set(["app", "composition", "presentation"]),
 };
 
@@ -20,42 +28,102 @@ const importPattern = /\b(?:import|export)\s+(?:type\s+)?(?:[^"'`]*?\s+from\s+)?
 async function walk(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
   const paths = [];
+
   for (const entry of entries) {
     const path = join(directory, entry.name);
-    if (entry.isDirectory()) paths.push(...(await walk(path)));
-    else if ([".ts", ".tsx"].includes(extname(entry.name))) paths.push(path);
+
+    if (entry.isDirectory()) {
+      paths.push(...(await walk(path)));
+    } else if ([".ts", ".tsx"].includes(extname(entry.name))) {
+      paths.push(path);
+    }
   }
+
   return paths;
 }
 
-function sourceLayer(file) {
-  const path = relative(ROOT, file).split(sep);
-  if (path[0] === "app") return "app";
-  return path[0] === "src" ? path[1] : undefined;
+function coordinates(file) {
+  const parts = relative(ROOT, file).split(sep);
+
+  if (parts[0] === "app") {
+    return { layer: "app", owner: parts[1] };
+  }
+
+  if (parts[0] !== "src") {
+    return {};
+  }
+
+  return {
+    layer: parts[1],
+    owner: parts[2],
+  };
 }
 
-function importedLayer(specifier) {
-  if (!specifier.startsWith("@/")) return undefined;
-  const parts = specifier.slice(2).split("/");
-  if (parts[0] === "app") return "app";
-  return parts[0] === "src" ? parts[1] : undefined;
+function importedFile(file, specifier) {
+  if (specifier.startsWith("@/")) {
+    return resolve(ROOT, specifier.slice(2));
+  }
+
+  if (specifier.startsWith(".")) {
+    return resolve(dirname(file), specifier);
+  }
+
+  return undefined;
 }
 
-const files = (await Promise.all(SOURCE_ROOTS.map(async (root) => {
-  try { return await walk(root); } catch { return []; }
-}))).flat();
+const files = (
+  await Promise.all(
+    SOURCE_ROOTS.map(async (root) => {
+      try {
+        return await walk(root);
+      } catch {
+        return [];
+      }
+    }),
+  )
+).flat();
 
 const violations = [];
+
 for (const file of files) {
-  const from = sourceLayer(file);
-  const allowed = layerRules[from];
-  if (!allowed) continue;
+  const from = coordinates(file);
+  const allowed = from.layer ? layerRules[from.layer] : undefined;
+
+  if (!allowed) {
+    continue;
+  }
+
   const source = await readFile(file, "utf8");
+
   for (const match of source.matchAll(importPattern)) {
     const specifier = match[1];
-    const to = importedLayer(specifier);
-    if (to && !allowed.has(to)) {
-      violations.push(`${relative(ROOT, file)}: ${from} may not import ${to} via ${specifier}`);
+    const target = importedFile(file, specifier);
+
+    if (!target) {
+      continue;
+    }
+
+    const to = coordinates(target);
+
+    if (to.layer && !allowed.has(to.layer)) {
+      violations.push(
+        `${relative(ROOT, file)}: ${from.layer} may not import ${to.layer} via ${specifier}`,
+      );
+      continue;
+    }
+
+    // Domain bounded contexts do not coordinate laterally. If two domain
+    // owners need one workflow, lift that orchestration into application.
+    if (
+      from.layer === "domain" &&
+      to.layer === "domain" &&
+      from.owner &&
+      to.owner &&
+      from.owner !== to.owner
+    ) {
+      violations.push(
+        `${relative(ROOT, file)}: domain owner ${from.owner} may not import sibling domain owner ${to.owner}; orchestrate above the domain layer`,
+      );
     }
   }
 }
